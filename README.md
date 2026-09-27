@@ -42,8 +42,8 @@ The server starts with two employees:
 cd MCP-Server
 
 # Create and activate a virtual environment
-python3 -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
+python3 -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
 
 # Install the MCP SDK (v1.x)
 pip install "mcp[cli]<2"
@@ -84,7 +84,7 @@ Add this, using the **absolute paths** on your machine:
 {
   "mcpServers": {
     "LeaveManager": {
-      "command": "/ABSOLUTE/PATH/TO/MCP-Server/.venv/bin/python",
+      "command": "/ABSOLUTE/PATH/TO/MCP-Server/venv/bin/python",
       "args": ["/ABSOLUTE/PATH/TO/MCP-Server/main.py"]
     }
   }
