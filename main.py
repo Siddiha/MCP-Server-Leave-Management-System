@@ -41,7 +41,7 @@ def apply_leave(employee_id: str, leave_dates: List[str]) -> str:
     return f"Leave applied for {requested_days} day(s). Remaining balance: {employee_leaves[employee_id]['balance']}."
 
 
-# Resource: Leave history
+# Tool: Leave history
 @mcp.tool()
 def get_leave_history(employee_id: str) -> str:
     """Get leave history for the employee"""
