@@ -128,10 +128,12 @@ Apply leave for specific dates. Each date in the list counts as **one day**.
 | `employee_id` | `string`          | Yes      |
 | `leave_dates` | `array of string` | Yes      |
 
+Each date must be in `YYYY-MM-DD` format, must not be in the past, and can't be repeated in the same request or already in the employee's history.
+
 **Example:**
 
 ```json
-{ "employee_id": "E002", "leave_dates": ["2025-04-17", "2025-05-01"] }
+{ "employee_id": "E002", "leave_dates": ["2026-11-02", "2026-11-03"] }
 ```
 
 ```text
@@ -142,6 +144,16 @@ If the balance is too low:
 
 ```text
 Insufficient leave balance. You requested 19 day(s) but have only 18.
+```
+
+Other validation messages:
+
+```text
+Invalid date 'hello'. Use the format YYYY-MM-DD.
+Cannot apply leave for a past date: 2020-01-01.
+Duplicate dates in your request. Each date can only be listed once.
+Leave already applied for: 2026-11-03.
+Please give at least one date.
 ```
 
 ---
@@ -199,7 +211,7 @@ Employee ID not found.
 Once the server is connected, try asking Claude:
 
 - "How many leave days does E001 have left?"
-- "Apply leave for E002 on 2025-04-17 and 2025-05-01."
+- "Apply leave for E002 on 2026-11-02 and 2026-11-03."
 - "Show me the leave history for E001."
 
 ---
@@ -209,8 +221,6 @@ Once the server is connected, try asking Claude:
 These are known limitations of the current code:
 
 - **Data is not saved.** All changes are lost when the server restarts. Balances and history reset to the sample data.
-- **No date validation.** `apply_leave` accepts any strings, including invalid dates like `"hello"` or dates in the past.
-- **No duplicate check.** Applying for the same date twice (even in one request) counts as two days.
 - **Fixed employees.** Only `E001` and `E002` exist. There is no tool to add employees.
 - **No authentication.** Any connected client can view or change any employee's leave.
 

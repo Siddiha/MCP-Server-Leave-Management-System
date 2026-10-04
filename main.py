@@ -1,4 +1,5 @@
 from mcp.server.fastmcp import FastMCP
+from datetime import date
 from typing import List
 
 # In-memory mock database with 20 leave days to start
@@ -28,6 +29,28 @@ def apply_leave(employee_id: str, leave_dates: List[str]) -> str:
     if employee_id not in employee_leaves:
         return "Employee ID not found."
 
+    if not leave_dates:
+        return "Please give at least one date."
+
+    # Each date must be a real date in YYYY-MM-DD format and not in the past
+    for leave_date in leave_dates:
+        try:
+            parsed = date.fromisoformat(leave_date)
+        except ValueError:
+            return f"Invalid date '{leave_date}'. Use the format YYYY-MM-DD."
+        if parsed < date.today():
+            return f"Cannot apply leave for a past date: {leave_date}."
+
+    # The same date can't be listed twice in one request
+    if len(set(leave_dates)) != len(leave_dates):
+        return "Duplicate dates in your request. Each date can only be listed once."
+
+    # The same date can't be booked twice across requests
+    history = employee_leaves[employee_id]["history"]
+    already_taken = [d for d in leave_dates if d in history]
+    if already_taken:
+        return f"Leave already applied for: {', '.join(already_taken)}."
+
     requested_days = len(leave_dates)
     available_balance = employee_leaves[employee_id]["balance"]
 
@@ -36,7 +59,7 @@ def apply_leave(employee_id: str, leave_dates: List[str]) -> str:
 
     # Deduct balance and add to history
     employee_leaves[employee_id]["balance"] -= requested_days
-    employee_leaves[employee_id]["history"].extend(leave_dates)
+    history.extend(leave_dates)
 
     return f"Leave applied for {requested_days} day(s). Remaining balance: {employee_leaves[employee_id]['balance']}."
 
