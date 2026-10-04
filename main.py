@@ -1,12 +1,29 @@
 from mcp.server.fastmcp import FastMCP
 from datetime import date
+from pathlib import Path
 from typing import List
+import json
 
-# In-memory mock database with 20 leave days to start
-employee_leaves = {
+# Where leave data is saved between server restarts
+DATA_FILE = Path(__file__).parent / "leave_data.json"
+
+# Sample data, used only when no saved file exists yet
+DEFAULT_LEAVES = {
     "E001": {"balance": 18, "history": ["2024-12-25", "2025-01-01"]},
     "E002": {"balance": 20, "history": []}
 }
+
+def load_leaves() -> dict:
+    """Read leave data from the file, or start from the sample data"""
+    if DATA_FILE.exists():
+        return json.loads(DATA_FILE.read_text())
+    return json.loads(json.dumps(DEFAULT_LEAVES))
+
+def save_leaves() -> None:
+    """Write the current leave data to the file"""
+    DATA_FILE.write_text(json.dumps(employee_leaves, indent=2))
+
+employee_leaves = load_leaves()
 
 # Create MCP server
 mcp = FastMCP("LeaveManager")
@@ -60,6 +77,7 @@ def apply_leave(employee_id: str, leave_dates: List[str]) -> str:
     # Deduct balance and add to history
     employee_leaves[employee_id]["balance"] -= requested_days
     history.extend(leave_dates)
+    save_leaves()
 
     return f"Leave applied for {requested_days} day(s). Remaining balance: {employee_leaves[employee_id]['balance']}."
 
